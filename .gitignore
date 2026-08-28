@@ -1,18 +1,21 @@
-#ignore all kind of files
-*.*
-#except php files
-!*.py
-!*.yml
-!*.txt
-!*.md
-!*LICENSE
-!image/moon.jpg
-!depth/moon.npy
-!depth/moon.png
-!video/moon_swing.mp4
-!video/moon_zoom-in.mp4
-!video/moon_dolly-zoom-in.mp4
-!video/moon_straight-line.mp4
-!video/moon.mp4
-!video/moon_circle.mp4
-!misc/moon_40.gif
+# Python 仮想環境
+.venv/
+__pycache__/
+*.pyc
+
+# 巨大なAIモデル重み（GitHubに上げずHugging Faceから落とすため）
+checkpoints/
+MiDaS/model.pt
+*.pth
+*.pt
+
+# 実行時の一時出力フォルダ
+depth/
+mesh/
+video/
+
+# OSやエディタの一時ファイル
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
