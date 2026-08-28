@@ -35,6 +35,29 @@ if config['offscreen_rendering'] is True:
 os.makedirs(config['mesh_folder'], exist_ok=True)
 os.makedirs(config['video_folder'], exist_ok=True)
 os.makedirs(config['depth_folder'], exist_ok=True)
+
+def ensure_checkpoints(config):
+    import shutil
+    from huggingface_hub import hf_hub_download
+    
+    repo_id = "takeimo/tierer-models"
+    model_mapping = {
+        "color-model.pth": config.get("color_model_ckpt", "checkpoints/color-model.pth"),
+        "depth-model.pth": config.get("depth_model_ckpt", "checkpoints/depth-model.pth"),
+        "edge-model.pth": config.get("edge_model_ckpt", "checkpoints/edge-model.pth"),
+        "model.pt": config.get("MiDaS_model_ckpt", "MiDaS/model.pt"),
+    }
+    for filename, target_path in model_mapping.items():
+        if not os.path.exists(target_path):
+            print(f"モデルをダウンロード中: {filename} (from {repo_id}) ...")
+            target_dir = os.path.dirname(target_path)
+            if target_dir:
+                os.makedirs(target_dir, exist_ok=True)
+            cached_path = hf_hub_download(repo_id=repo_id, filename=filename)
+            shutil.copy(cached_path, target_path)
+
+ensure_checkpoints(config)
+
 sample_list = get_MiDaS_samples(config['src_folder'], config['depth_folder'], config, config['specific'])
 normal_canvas, all_canvas = None, None
 
