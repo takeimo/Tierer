@@ -19,7 +19,7 @@ video_folder: video
 load_ply: False
 save_ply: True
 inference_video: True
-gpu_ids: -1
+gpu_ids: "auto"  # "auto" (default: detect GPU/CPU automatically), 0 (specific GPU), or -1 (CPU)
 offscreen_rendering: False
 img_format: '.jpg'
 depth_format: '.npy'

@@ -61,10 +61,34 @@ ensure_checkpoints(config)
 sample_list = get_MiDaS_samples(config['src_folder'], config['depth_folder'], config, config['specific'])
 normal_canvas, all_canvas = None, None
 
-if isinstance(config["gpu_ids"], int) and (config["gpu_ids"] >= 0):
-    device = config["gpu_ids"]
-else:
-    device = "cpu"
+def resolve_device(cfg):
+    gpu_cfg = cfg.get("gpu_ids", "auto")
+    
+    # 1. ユーザーが明示的に CPU を指定した場合
+    if gpu_cfg == -1 or str(gpu_cfg).lower() == "cpu":
+        print("[Device] Running on CPU (user specified).")
+        return "cpu"
+    
+    # 2. ユーザーが明示的に GPU番号 (0, 1等) を指定した場合
+    if isinstance(gpu_cfg, int) and gpu_cfg >= 0:
+        if torch.cuda.is_available():
+            gpu_name = torch.cuda.get_device_name(gpu_cfg)
+            print(f"[Device] Running on GPU {gpu_cfg}: {gpu_name}")
+            return gpu_cfg
+        else:
+            print(f"[Device Warning] GPU {gpu_cfg} was specified, but CUDA is not available. Falling back to CPU.")
+            return "cpu"
+            
+    # 3. "auto" または未指定の場合: 自動判別
+    if torch.cuda.is_available():
+        gpu_name = torch.cuda.get_device_name(0)
+        print(f"[Device] NVIDIA GPU detected: {gpu_name}. Running on CUDA.")
+        return 0
+    else:
+        print("[Device] No CUDA GPU detected. Running on CPU.")
+        return "cpu"
+
+device = resolve_device(config)
 
 print(f"running on device {device}")
 
