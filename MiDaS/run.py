@@ -64,7 +64,8 @@ def run_depth(img_names, input_path, output_path, model_path, Net, utils, target
         np.save(filename + '.npy', depth)
         utils.write_depth(filename, depth, bits=2)
 
-    print("finished")
+    from datetime import datetime
+    print(f"[{datetime.now().strftime('%H:%M:%S')}] Depth extraction completed.")
 
 
 # if __name__ == "__main__":

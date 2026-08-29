@@ -1,4 +1,5 @@
 import copy
+from datetime import datetime
 import numpy as np
 import argparse
 import glob
@@ -28,6 +29,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--config', type=str, default='argument.yml',help='Configure of post processing')
 args = parser.parse_args()
 config = yaml.safe_load(open(args.config, 'r'))
+start_time = time.time()
 if config['offscreen_rendering'] is True:
     vispy.use(app='egl')
 os.makedirs(config['mesh_folder'], exist_ok=True)
@@ -66,14 +68,13 @@ else:
 
 print(f"running on device {device}")
 
-for idx in tqdm(range(len(sample_list))):
+for idx, sample in enumerate(sample_list):
     depth = None
-    sample = sample_list[idx]
-    print("Current Source ==> ", sample['src_pair_name'])
+    print(f"\n{'='*20} [{idx+1}/{len(sample_list)}] Processing: {sample['src_pair_name']} {'='*20}")
     mesh_fi = os.path.join(config['mesh_folder'], sample['src_pair_name'] +'.ply')
     image = imageio.imread(sample['ref_img_fi'])
 
-    print(f"Running depth extraction at {time.time()}")
+    print(f"[{datetime.now().strftime('%H:%M:%S')}] Running depth extraction ...")
     if config['use_boostmonodepth'] is True:
         run_boostmonodepth(sample['ref_img_fi'], config['src_folder'], config['depth_folder'])
     elif config['require_midas'] is True:
@@ -102,7 +103,7 @@ for idx in tqdm(range(len(sample_list))):
         model = None
         torch.cuda.empty_cache()
         print("Start Running 3D_Photo ...")
-        print(f"Loading edge model at {time.time()}")
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] Loading edge model ...")
         depth_edge_model = Inpaint_Edge_Net(init_weights=True)
         depth_edge_weight = torch.load(config['depth_edge_model_ckpt'],
                                        map_location=torch.device(device))
@@ -110,7 +111,7 @@ for idx in tqdm(range(len(sample_list))):
         depth_edge_model = depth_edge_model.to(device)
         depth_edge_model.eval()
 
-        print(f"Loading depth model at {time.time()}")
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] Loading depth model ...")
         depth_feat_model = Inpaint_Depth_Net()
         depth_feat_weight = torch.load(config['depth_feat_model_ckpt'],
                                        map_location=torch.device(device))
@@ -118,7 +119,7 @@ for idx in tqdm(range(len(sample_list))):
         depth_feat_model = depth_feat_model.to(device)
         depth_feat_model.eval()
         depth_feat_model = depth_feat_model.to(device)
-        print(f"Loading rgb model at {time.time()}")
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] Loading rgb model ...")
         rgb_model = Inpaint_Color_Net()
         rgb_feat_weight = torch.load(config['rgb_feat_model_ckpt'],
                                      map_location=torch.device(device))
@@ -128,7 +129,7 @@ for idx in tqdm(range(len(sample_list))):
         graph = None
 
 
-        print(f"Writing depth ply (and basically doing everything) at {time.time()}")
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] Building 3D LDI mesh and inpainting ...")
         rt_info = write_ply(image,
                               depth,
                               sample['int_mtx'],
@@ -152,7 +153,7 @@ for idx in tqdm(range(len(sample_list))):
         verts, colors, faces, Height, Width, hFov, vFov = rt_info
 
 
-    print(f"Making video at {time.time()}")
+    print(f"[{datetime.now().strftime('%H:%M:%S')}] Rendering video ...")
     videos_poses, video_basename = copy.deepcopy(sample['tgts_poses']), sample['tgt_name']
     top = (config.get('original_h') // 2 - sample['int_mtx'][1, 2] * config['output_h'])
     left = (config.get('original_w') // 2 - sample['int_mtx'][0, 2] * config['output_w'])
@@ -163,3 +164,9 @@ for idx in tqdm(range(len(sample_list))):
                         image.copy(), copy.deepcopy(sample['int_mtx']), config, image,
                         videos_poses, video_basename, config.get('original_h'), config.get('original_w'), border=border, depth=depth, normal_canvas=normal_canvas, all_canvas=all_canvas,
                         mean_loc_depth=mean_loc_depth)
+
+total_time = time.time() - start_time
+mins, secs = divmod(int(total_time), 60)
+print(f"\n{'='*55}")
+print(f"[{datetime.now().strftime('%H:%M:%S')}] 🎉 All processes completed successfully! (Total time: {mins}m {secs:02d}s)")
+print(f"{'='*55}\n")

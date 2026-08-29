@@ -8,6 +8,7 @@ from vispy.scene import visuals
 from vispy.visuals.filters import Alpha
 import cv2
 from moviepy import ImageSequenceClip
+from tqdm import tqdm 
 from skimage.transform import resize
 import time
 import copy
@@ -2231,7 +2232,9 @@ def output_3d_photo(verts, colors, faces, Height, Width, hFov, vFov, tgt_poses, 
     for video_pose, video_traj_type in zip(videos_poses, video_traj_types):
         stereos = []
         tops = []; buttoms = []; lefts = []; rights = []
-        for tp_id, tp in enumerate(video_pose):
+        # フレーム描画のリアルタイム進捗バーを表示
+        pbar = tqdm(enumerate(video_pose), total=len(video_pose), desc=f"Rendering {video_traj_type}", leave=False)
+        for tp_id, tp in pbar:
             rel_pose = np.linalg.inv(np.dot(tp, np.linalg.inv(ref_pose)))
             axis, angle = transforms3d.axangles.mat2axangle(rel_pose[0:3, 0:3])
             normal_canvas.rotate(axis=axis, angle=(angle*180)/np.pi)
