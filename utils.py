@@ -831,14 +831,23 @@ def clean_far_edge(mask_edge, mask_edge_with_id, context_edge, mask, info_on_pix
     return far_edge, uncleaned_far_edge, far_edge_with_id, near_edge_with_id
 
 def get_MiDaS_samples(image_folder, depth_folder, config, specific=None, aft_certain=None):
-    lines = [os.path.splitext(os.path.basename(xx))[0] for xx in glob.glob(os.path.join(image_folder, '*' + config['img_format']))]
+    import glob
+    SUPPORTED_EXTS = ('.jpg', '.jpeg', '.png', '.webp', '.bmp', '.JPG', '.JPEG', '.PNG', '.WEBP', '.BMP')
+    
+    # サポートされているすべての画像ファイルを走査
+    all_files = os.listdir(image_folder) if os.path.exists(image_folder) else []
+    image_files = [f for f in all_files if f.endswith(SUPPORTED_EXTS)]
+    
+    if len(image_files) == 0:
+        raise FileNotFoundError(f"[Tierer Error] No valid images found in '{image_folder}'. Supported formats: .jpg, .jpeg, .png, .webp, .bmp")
+
     samples = []
     generic_pose = np.eye(4)
     assert len(config['traj_types']) == len(config['x_shift_range']) ==\
            len(config['y_shift_range']) == len(config['z_shift_range']) == len(config['video_postfix']), \
            "The number of elements in 'traj_types', 'x_shift_range', 'y_shift_range', 'z_shift_range' and \
                'video_postfix' should be equal."
-    tgt_pose = [[generic_pose * 1]]
+    
     tgts_poses = []
     for traj_idx in range(len(config['traj_types'])):
         tgt_poses = []
@@ -847,36 +856,33 @@ def get_MiDaS_samples(image_folder, depth_folder, config, specific=None, aft_cer
         for xx, yy, zz in zip(sx, sy, sz):
             tgt_poses.append(generic_pose * 1.)
             tgt_poses[-1][:3, -1] = np.array([xx, yy, zz])
-        tgts_poses += [tgt_poses]    
+        tgts_poses += [tgt_poses]
     tgt_pose = generic_pose * 1
-    
-    aft_flag = True
-    if aft_certain is not None and len(aft_certain) > 0:
-        aft_flag = False
-    for seq_dir in lines:
-        if specific is not None and len(specific) > 0:
-            if specific != seq_dir:
-                continue
-        if aft_certain is not None and len(aft_certain) > 0:
-            if aft_certain == seq_dir:
-                aft_flag = True
-            if aft_flag is False:
-                continue
-        samples.append({})
-        sdict = samples[-1]            
-        sdict['depth_fi'] = os.path.join(depth_folder, seq_dir + config['depth_format'])
-        sdict['ref_img_fi'] = os.path.join(image_folder, seq_dir + config['img_format'])
-        H, W = imageio.imread(sdict['ref_img_fi']).shape[:2]
+
+    for img_file in sorted(image_files):
+        base_name, _ = os.path.splitext(img_file)
+        if specific is not None and len(specific) > 0 and specific != base_name:
+            continue
+            
+        sdict = {}
+        sdict['ref_img_fi'] = os.path.join(image_folder, img_file)
+        sdict['depth_fi'] = os.path.join(depth_folder, base_name + config['depth_format'])
+        
+        # 画像サイズとカメラ行列の計算
+        img_data = imageio.imread(sdict['ref_img_fi'])
+        H, W = img_data.shape[:2]
         sdict['int_mtx'] = np.array([[max(H, W), 0, W//2], [0, max(H, W), H//2], [0, 0, 1]]).astype(np.float32)
         if sdict['int_mtx'].max() > 1:
             sdict['int_mtx'][0, :] = sdict['int_mtx'][0, :] / float(W)
             sdict['int_mtx'][1, :] = sdict['int_mtx'][1, :] / float(H)
+            
         sdict['ref_pose'] = np.eye(4)
         sdict['tgt_pose'] = tgt_pose
         sdict['tgts_poses'] = tgts_poses
         sdict['video_postfix'] = config['video_postfix']
-        sdict['tgt_name'] = [os.path.splitext(os.path.basename(sdict['depth_fi']))[0]]
-        sdict['src_pair_name'] = sdict['tgt_name'][0]
+        sdict['tgt_name'] = [base_name]
+        sdict['src_pair_name'] = base_name
+        samples.append(sdict)
 
     return samples
 

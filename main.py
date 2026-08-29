@@ -112,7 +112,11 @@ for idx, sample in enumerate(sample_list):
     frac = config['longer_side_len'] / max(config['output_h'], config['output_w'])
     config['output_h'], config['output_w'] = int(config['output_h'] * frac), int(config['output_w'] * frac)
     config['original_h'], config['original_w'] = config['output_h'], config['output_w']
-    if image.ndim == 2:
+    # 透過PNG (4チャンネル RGBA) の場合は RGB (3チャンネル) に安全変換
+    if image.ndim == 3 and image.shape[-1] == 4:
+        image = image[..., :3]
+    # グレースケール画像 (2次元) の場合は 3チャンネルに拡張
+    elif image.ndim == 2:
         image = image[..., None].repeat(3, -1)
     if np.sum(np.abs(image[..., 0] - image[..., 1])) == 0 and np.sum(np.abs(image[..., 1] - image[..., 2])) == 0:
         config['gray_image'] = True
