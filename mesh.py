@@ -7,10 +7,7 @@ from vispy import scene, io
 from vispy.scene import visuals
 from vispy.visuals.filters import Alpha
 import cv2
-try:
-    from moviepy import ImageSequenceClip
-except ImportError:
-    from moviepy.editor import ImageSequenceClip
+from moviepy import ImageSequenceClip
 from skimage.transform import resize
 import time
 import copy
