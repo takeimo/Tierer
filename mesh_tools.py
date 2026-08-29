@@ -194,16 +194,18 @@ def extrapolate(global_mesh,
     valid_edge_ids = sorted(list(input_other_edge_with_id[(valid_line * input_edge_map) > 0]))
     valid_edge_ids = valid_edge_ids[1:] if (len(valid_edge_ids) > 0 and valid_edge_ids[0] == -1) else valid_edge_ids
     edge = reduce(lambda x, y: (x + (input_other_edge_with_id == y).astype(np.uint8)).clip(0, 1), [np.zeros_like(mask)] + list(valid_edge_ids))
-    t_edge = torch.FloatTensor(edge).to(device)[None, None, ...]
-    t_rgb = torch.FloatTensor(input_rgb).to(device).permute(2,0,1).unsqueeze(0)
-    t_mask = torch.FloatTensor(mask).to(device)[None, None, ...]
-    t_context = torch.FloatTensor(context).to(device)[None, None, ...]
-    t_disp = torch.FloatTensor(input_disp).to(device)[None, None, ...]
-    t_depth_zero_mean_depth = torch.FloatTensor(input_zero_mean_depth).to(device)[None, None, ...]
+    # モデルの配置先（GPU / CPU）を直接取得して完全に一致させる
+    dev = next(depth_edge_model.parameters()).device
+    t_edge = torch.FloatTensor(edge).to(dev)[None, None, ...]
+    t_rgb = torch.FloatTensor(input_rgb).to(dev).permute(2,0,1).unsqueeze(0)
+    t_mask = torch.FloatTensor(mask).to(dev)[None, None, ...]
+    t_context = torch.FloatTensor(context).to(dev)[None, None, ...]
+    t_disp = torch.FloatTensor(input_disp).to(dev)[None, None, ...]
+    t_depth_zero_mean_depth = torch.FloatTensor(input_zero_mean_depth).to(dev)[None, None, ...]
 
     depth_edge_output = depth_edge_model.forward_3P(t_mask, t_context, t_rgb, t_disp, t_edge, unit_length=128,
-                                                    cuda=device)
-    t_output_edge = (depth_edge_output> config['ext_edge_threshold']).float() * t_mask + t_edge
+                                                    cuda=dev)
+    t_output_edge = (depth_edge_output > config['ext_edge_threshold']).float() * t_mask + t_edge
     output_raw_edge = t_output_edge.data.cpu().numpy().squeeze()
     # import pdb; pdb.set_trace()
     mesh = netx.Graph()
@@ -301,9 +303,11 @@ def extrapolate(global_mesh,
     # import pdb; pdb.set_trace()
     far_edge = (fpath_map > -1).astype(np.uint8)
     update_edge = (npath_map > -1) * mask + edge
-    t_update_edge = torch.FloatTensor(update_edge).to(device)[None, None, ...]
+    # モデルのデバイス（GPU）を取得して確実に合わせる
+    dev = next(depth_feat_model.parameters()).device
+    t_update_edge = torch.FloatTensor(update_edge).to(dev)[None, None, ...]
     depth_output = depth_feat_model.forward_3P(t_mask, t_context, t_depth_zero_mean_depth, t_update_edge, unit_length=128,
-                                               cuda=device)
+                                               cuda=dev)
     depth_output = depth_output.cpu().data.numpy().squeeze()
     depth_output = np.exp(depth_output + input_mean_depth) * mask # + input_depth * context
     # if "right" in direc.lower() and "-" not in direc.lower():
@@ -323,7 +327,7 @@ def extrapolate(global_mesh,
     #     import pdb; pdb.set_trace()
     #     f, ((ax1, ax2)) = plt.subplots(1, 2, sharex=True, sharey=True); ax1.imshow(depth_output); ax2.imshow(npath_map + fpath_map); plt.show()
     rgb_output = rgb_feat_model.forward_3P(t_mask, t_context, t_rgb, t_update_edge, unit_length=128,
-                                           cuda=device)
+                                           cuda=dev)
 
     # rgb_output = rgb_feat_model.forward_3P(t_mask, t_context, t_rgb, t_update_edge, unit_length=128, cuda=config['gpu_ids'])
     if config.get('gray_image') is True:

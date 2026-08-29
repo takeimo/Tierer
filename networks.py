@@ -183,9 +183,9 @@ class Inpaint_Depth_Net(nn.Module):
             residual_w = int(np.ceil(w / float(unit_length)) * unit_length - w)
             anchor_h = residual_h//2
             anchor_w = residual_w//2
-            enlarge_input = torch.zeros((n, c, h + residual_h, w + residual_w)).to(cuda)
-            enlarge_input[..., anchor_h:anchor_h+h, anchor_w:anchor_w+w] = input
-            # enlarge_input[:, 3] = 1. - enlarge_input[:, 3]
+            device = next(self.parameters()).device
+            enlarge_input = torch.zeros((n, c, h + residual_h, w + residual_w), device=device)
+            enlarge_input[..., anchor_h:anchor_h+h, anchor_w:anchor_w+w] = input.to(device)
             depth_output = self.forward(enlarge_input)
             depth_output = depth_output[..., anchor_h:anchor_h+h, anchor_w:anchor_w+w]
             # import pdb; pdb.set_trace()
@@ -193,8 +193,9 @@ class Inpaint_Depth_Net(nn.Module):
         return depth_output
 
     def forward(self, input_feat, refine_border=False, sample=False, PCONV=True):
-        input = input_feat
-        input_mask = (input_feat[:, -2:-1] + input_feat[:, -1:]).clamp(0, 1).repeat(1, input.shape[1], 1, 1)
+        device = next(self.parameters()).device
+        input = input_feat.to(device)
+        input_mask = (input[:, -2:-1] + input[:, -1:]).clamp(0, 1).repeat(1, input.shape[1], 1, 1)
 
         vis_input = input.cpu().data.numpy()
         vis_input_mask = input_mask.cpu().data.numpy()
@@ -306,14 +307,17 @@ class Inpaint_Edge_Net(BaseNetwork):
             residual_w = int(np.ceil(w / float(unit_length)) * unit_length - w)
             anchor_h = residual_h//2
             anchor_w = residual_w//2
-            enlarge_input = torch.zeros((n, c, h + residual_h, w + residual_w)).to(cuda)
-            enlarge_input[..., anchor_h:anchor_h+h, anchor_w:anchor_w+w] = input
+            device = next(self.parameters()).device
+            enlarge_input = torch.zeros((n, c, h + residual_h, w + residual_w), device=device)
+            enlarge_input[..., anchor_h:anchor_h+h, anchor_w:anchor_w+w] = input.to(device)
             edge_output = self.forward(enlarge_input)
             edge_output = edge_output[..., anchor_h:anchor_h+h, anchor_w:anchor_w+w]
 
         return edge_output
 
     def forward(self, x, refine_border=False):
+        device = next(self.parameters()).device
+        x = x.to(device)
         if refine_border:
             x, anchor = self.add_border(x, [5])
         x1 = self.encoder_0(x)
@@ -376,16 +380,17 @@ class Inpaint_Color_Net(nn.Module):
             residual_w = int(np.ceil(w / float(unit_length)) * unit_length - w) # + 256
             anchor_h = residual_h//2
             anchor_w = residual_w//2
-            enlarge_input = torch.zeros((n, c, h + residual_h, w + residual_w)).to(cuda)
-            enlarge_input[..., anchor_h:anchor_h+h, anchor_w:anchor_w+w] = input
-            # enlarge_input[:, 3] = 1. - enlarge_input[:, 3]
-            enlarge_input = enlarge_input.to(cuda)
+            device = next(self.parameters()).device
+            enlarge_input = torch.zeros((n, c, h + residual_h, w + residual_w), device=device)
+            enlarge_input[..., anchor_h:anchor_h+h, anchor_w:anchor_w+w] = input.to(device)
             rgb_output = self.forward(enlarge_input)
             rgb_output = rgb_output[..., anchor_h:anchor_h+h, anchor_w:anchor_w+w]
 
         return rgb_output
 
     def forward(self, input, add_border=False):
+        device = next(self.parameters()).device
+        input = input.to(device)
         input_mask = (input[:, -2:-1] + input[:, -1:]).clamp(0, 1)
         H, W = input.shape[-2:]
         f_0, h_0 = input, input_mask.repeat((1,input.shape[1],1,1))
