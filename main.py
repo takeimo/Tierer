@@ -103,7 +103,7 @@ for idx, sample in enumerate(sample_list):
         run_boostmonodepth(sample['ref_img_fi'], config['src_folder'], config['depth_folder'])
     elif config['require_midas'] is True:
         run_depth([sample['ref_img_fi']], config['src_folder'], config['depth_folder'],
-                  config['MiDaS_model_ckpt'], MonoDepthNet, MiDaS_utils, target_w=640)
+                  config['MiDaS_model_ckpt'], MonoDepthNet, MiDaS_utils, target_w=640, device=device)
 
     if 'npy' in config['depth_format']:
         config['output_h'], config['output_w'] = np.load(sample['depth_fi']).shape[:2]
