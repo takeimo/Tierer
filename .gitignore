@@ -3,13 +3,14 @@
 __pycache__/
 *.pyc
 
-# 巨大なAIモデル重み（GitHubに上げずHugging Faceから落とすため）
+# 巨大なAIモデル重み
 checkpoints/
 MiDaS/model.pt
 *.pth
 *.pt
 
-# 実行時の一時出力フォルダ
+# 出力成果物フォルダ（丸ごと除外）
+outputs/
 depth/
 mesh/
 video/
