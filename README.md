@@ -6,65 +6,75 @@
 
 **Tierer** is a modernized revival of the seminal layered depth inpainting project, [3D Photography using Context-aware Layered Depth Inpainting (CVPR 2020)](https://github.com/vt-vl-lab/3d-photo-inpainting).
 
-The original project was a groundbreaking milestone in synthesized parallax generation from a single RGB image. **Tierer** updates this classic technology for modern operating systems and modern Python ecosystems using **[uv](https://github.com/astral-sh/uv)** — allowing anyone to run the full pipeline out of the box with a single command.
+The original project was a groundbreaking milestone in synthesizing 3D parallax and context-aware disocclusion from a single RGB image. **Tierer** refactors this classic technology for contemporary systems using **[uv](https://github.com/astral-sh/uv)** — providing a zero-setup, fully isolated, and deterministic pipeline out of the box with a single command.
 
 ---
 
 ## ✨ Key Highlights
 
-* **⚡ Single-Command Execution via `uv`**: Powered entirely by `uv`, which instantly provisions the exact Python environment and locked dependencies without manual environment setup.
-* **🐍 Modern Ecosystem Compatibility**: Fully refactored and tested for **Python 3.10–3.13**, **PyTorch 2.6+**, and **NumPy 2.x**. Modernized for recent library updates (NumPy 2.x type standards, NetworkX 3.x graph APIs, safe PyYAML loading, and updated VisPy/MoviePy backends).
-* **🤖 Automatic Model Download**: No manual downloads or file placements required. Pretrained weights are automatically fetched and set up on the first run.
-* **💻 Broad Hardware Support**: Validated on Windows 11 on both discrete NVIDIA GPUs (e.g., RTX 3060) and entry-level CPUs (e.g., Intel N150) without local C++ compilation.
+* **⚡ Single-Command Execution via `uv`**: Fully managed by `uv`. Automatically provisions an isolated local virtual environment (`.venv`) and pre-built wheels without polluting your global system or breaking other AI environments.
+* **🧠 Automatic Hardware Detection**: Automatically detects NVIDIA GPUs (CUDA) for high-speed processing (e.g., ~3 minutes on RTX 3060) or seamlessly falls back to CPU mode on machines without dedicated GPUs. No configuration needed.
+* **🖼 Multi-Format Image Support**: Out-of-the-box support for **PNG (including RGBA/transparency)**, **JPEG/JPG**, **WebP**, and **BMP**.
+* **📁 Clean Input/Output Architecture**: Intuitive directory structure (`input_images/` ➔ `outputs/`), keeping the repository root pristine and clutter-free.
+* **🐍 Modern Ecosystem Compatibility**: Refactored for **Python 3.10–3.13**, **PyTorch 2.6+**, and **NumPy 2.x**. Resolved legacy incompatibilities (NumPy 2.x type standards, NetworkX 3.x graph APIs, safe PyYAML loading, and Qt6/MoviePy backends).
+* **🤖 Automatic Model Download**: Pretrained neural network weights are automatically fetched and verified from [Hugging Face](https://huggingface.co/takeimo/tierer-models) on the initial run.
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-* **`git`** and **`uv`** are required. This guide assumes both are already installed on your system.
+* **`git`** and **`uv`** are required. (Ensure both are installed on your system).
 
-*(Note: Google Colab and cloud notebook environments are not supported. This project is dedicated to local execution via `uv`.)*
+*(Note: Google Colab and cloud notebooks are unsupported. Tierer is strictly tailored for deterministic local CLI execution via `uv`.)*
 
-### Clone & Run
-Clone the repository and run the pipeline. `uv` will automatically set up Python, install all locked dependencies, download required models, and process images:
+### 1. Clone & Run
+Clone the repository and run the pipeline. `uv` will automatically set up the isolated environment, fetch locked dependencies and AI models, and render the demo:
 
 ```bash
 git clone https://github.com/takeimo/Tierer.git
 cd Tierer
 
-# Run the pipeline (uv sets up and executes everything automatically)
+# Run the pipeline (everything is handled automatically)
 uv run main.py --config argument.yml
 ```
 
-### Custom Images & GPU Settings
-* **Input / Output**: Place your input images into the `image/` directory. Output 3D mesh files (`mesh/*.ply`) and rendered parallax videos (`video/*.mp4`) will be generated automatically.
-* **GPU / CPU Acceleration**: Edit `argument.yml` to select your compute device:
-  * `gpu_ids: 0` — for NVIDIA GPU acceleration (CUDA)
-  * `gpu_ids: -1` — for CPU-only execution
+### 2. Processing Your Own Images
+1. Drop your target image(s) (`.png`, `.jpg`, `.webp`, etc.) into the **`input_images/`** folder.
+2. Run `uv run main.py --config argument.yml`.
+3. Generated results are cleanly organized in **`outputs/`**:
+   * 🎥 **Parallax Videos**: `outputs/videos/<image_name>_<trajectory>.mp4`
+   * 🧊 **3D Inpainted Meshes**: `outputs/3d_meshes/<image_name>.ply`
+   * 🗺 **Depth Maps**: `outputs/depth_maps/<image_name>.png`
 
 ---
 
 ## 🧭 Project Policy & Scope
 
-* **Single Responsibility**: The purpose of this repository is strictly to provide a stable, out-of-the-box implementation of **Layered Depth Inpainting (LDI)** in modern environments.
-* **No Feature Creep**: We do not plan to add complex camera controls, UI wrappers, or new editing features. The pipeline outputs clean `.ply` 3D meshes so users can freely import and animate them in 3D software (such as Blender).
-* **Continuous Modernization**: We prioritize tracking modern Python and library updates, keeping the pipeline operational on contemporary systems.
-* **Calendar Versioning (`YYYY.MM.DD`)**: Releases and tags use calendar dates so users can easily see when the repository was last updated and verified.
-* **Local-First Focus**: Support is limited to local CLI environments managed via `uv`. Google Colab / Jupyter notebooks are explicitly outside the scope of this project.
+* **Single Responsibility**: The sole purpose of this repository is to provide a rock-solid, out-of-the-box baseline for **Layered Depth Inpainting (LDI)** in modern environments.
+* **No Feature Creep**: There are no plans to add complex camera GUIs, web interfaces, or interactive mesh editing. The pipeline exports clean `.ply` 3D meshes so users can freely import and animate them in 3D suites like Blender.
+* **Continuous Modernization**: The focus remains on keeping `uv.lock` aligned with contemporary Python and upstream library releases to prevent codebase bitrot.
+* **Calendar Versioning (`YYYY.MM.DD`)**: Releases and Git tags utilize calendar dates, making it immediately transparent when the repository was last verified and maintained.
+* **Local-First Focus**: Exclusively optimized for local command-line execution.
 
 ---
 
 ## ⚠ Disclaimer & Maintenance Notice
 
-* **AI-Assisted Maintenance**: Please note that the maintainer is **not a professional software engineer**. This modernization project is curated and maintained with the assistance of AI/LLM tools.
-* **No Pull Requests & Limited Support**: Because the maintainer lacks the expertise to review and validate external code, **pull requests are not accepted, and bespoke user support cannot be provided.** If you encounter platform-specific issues or wish to adapt the code, please feel free to fork this repository under the MIT License.
+* **AI-Assisted Maintenance**: The maintainer is **not a professional software engineer**. This modernization project is curated and maintained with the assistance of AI/LLM tools.
+* **No Pull Requests & Limited Support**: Because the maintainer lacks the expertise to review external code, **pull requests are not accepted, and bespoke user support cannot be provided.** If you encounter platform-specific issues or wish to modify the code, please feel free to fork this repository under the MIT License.
+
+---
+
+## ⭐ Support the Project
+
+If you found **Tierer** useful or enjoyed seeing your 2D photos come to life with 3D depth, **please consider giving this repository a star!** ⭐  
 
 ---
 
 ## 🙏 Heartfelt Acknowledgments & Citations
 
-We express our deepest gratitude and respect to the original authors and researchers whose ingenious work made single-image layered depth inpainting possible:
+Deep gratitude and respect to the original authors and researchers whose ingenious work made single-image layered depth inpainting possible:
 
 * **Original Paper & Framework**:
   > **3D Photography using Context-aware Layered Depth Inpainting**  
@@ -90,5 +100,5 @@ We express our deepest gratitude and respect to the original authors and researc
 
 ## 📄 License & Model Usage Disclaimers
 
-* **Source Code**: Released under the [MIT License](LICENSE), consistent with the original repository.
-* **Pretrained Weights**: The model checkpoints automatically downloaded from Hugging Face are derived from the original research and trained on academic datasets (such as MegaDepth). Users are responsible for ensuring compliance with the respective research and dataset licenses when using these models.
+* **Source Code**: Released under the [MIT License](LICENSE), inherited from the original repository.
+* **Pretrained Weights**: The checkpoints automatically fetched from Hugging Face are derived from the original research and trained on academic datasets (such as MegaDepth). Users are responsible for ensuring compliance with original research licenses when utilizing these models.
