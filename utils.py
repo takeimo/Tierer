@@ -617,12 +617,11 @@ def create_placeholder(context, mask, depth, fpath_map, npath_map, mesh, inpaint
             four_nes = [(x, y) for x, y in [(hx + 1, hy), (hx - 1, hy), (hx, hy + 1), (hx, hy - 1)] if\
                         x < mesh.graph['H'] and x >= 0 and y < mesh.graph['W'] and y >= 0 and npath_map[x, y] == near_id]
             for xx in four_nes:
-                xx_n = copy.deepcopy(xx)
+                xx_n = xx
                 if not mesh.has_node(xx_n):
                     if mesh.has_node((xx_n[0], xx_n[1], depth[xx_n[0], xx_n[1]])):
                         xx_n = (xx_n[0], xx_n[1], depth[xx_n[0], xx_n[1]])
                 if mesh.has_edge((hx, hy), xx_n):
-                    # pass
                     mesh.remove_edge((hx, hy), xx_n)
                 if mesh.nodes[(hx, hy)].get('near') is None:
                     mesh.nodes[(hx, hy)]['near'] = []
