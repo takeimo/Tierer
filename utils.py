@@ -1028,11 +1028,11 @@ def filter_irrelevant_edge(self_edge, other_edges, other_edges_with_id, current_
                                     other_edges_info[-1]['diff'] = 0
                                 # if end_group[nx, ny] != end_id and end_group[nx, ny] > 0:
                                 #     continue
-                            try:
+                            # 配列の境界内（0 <= nx < H, 0 <= ny < W）か安全に判定して代入
+                            h_iso, w_iso = isolate_condition.shape[:2]
+                            if 0 <= nx < h_iso and 0 <= ny < w_iso:
                                 if isolate_condition[nx, ny] == 1:
                                     other_edges_info[-1]['edge_map'][nx, ny] = 1
-                            except:
-                                pass
     other_edges_info = sorted(other_edges_info, key=lambda x: x.get('diff', 0), reverse=True)
     for other_edge in other_edges_info:
         if other_edge.get('end_point_map') is None:
