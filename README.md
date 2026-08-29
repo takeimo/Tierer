@@ -1,95 +1,94 @@
-# [CVPR 2020] 3D Photography using Context-aware Layered Depth Inpainting
+# 👑 Tierer
 
-[![Open 3DPhotoInpainting in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1706ToQrkIZshRSJSHvZ1RuCiM__YX3Bz)
+[![Python 3.10 - 3.13](https://img.shields.io/badge/python-3.10%20--%203.13-blue.svg)](https://www.python.org/)
+[![Package Manager: uv](https://img.shields.io/badge/uv-fast%20package%20manager-2BA8E2)](https://github.com/astral-sh/uv)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-### [[Paper](https://arxiv.org/abs/2004.04727)] [[Project Website](https://shihmengli.github.io/3D-Photo-Inpainting/)] [[Google Colab](https://colab.research.google.com/drive/1706ToQrkIZshRSJSHvZ1RuCiM__YX3Bz)]
+**Tierer** is a modernized revival of the seminal layered depth inpainting project, [3D Photography using Context-aware Layered Depth Inpainting (CVPR 2020)](https://github.com/vt-vl-lab/3d-photo-inpainting).
 
-<p align='center'>
-<img src='https://filebox.ece.vt.edu/~jbhuang/project/3DPhoto/3DPhoto_teaser.jpg' width='900'/>
-</p>
+The original project was a groundbreaking milestone in synthesized parallax generation from a single RGB image. **Tierer** updates this classic technology for modern operating systems and modern Python ecosystems using **[uv](https://github.com/astral-sh/uv)** — allowing anyone to run the full pipeline out of the box with a single command.
 
-We propose a method for converting a single RGB-D input image into a 3D photo, i.e., a multi-layer representation for novel view synthesis that contains hallucinated color and depth structures in regions occluded in the original view. We use a Layered Depth Image with explicit pixel connectivity as underlying representation, and present a learning-based inpainting model that iteratively synthesizes new local color-and-depth content into the occluded region in a spatial context-aware manner. The resulting 3D photos can be efficiently rendered with motion parallax using standard graphics engines. We validate the effectiveness of our method on a wide range of challenging everyday scenes and show fewer artifacts when compared with the state-of-the-arts.
-<br/>
+---
 
-**3D Photography using Context-aware Layered Depth Inpainting**
-<br/>
-[Meng-Li Shih](https://shihmengli.github.io/), 
-[Shih-Yang Su](https://lemonatsu.github.io/), 
-[Johannes Kopf](https://johanneskopf.de/), and
-[Jia-Bin Huang](https://filebox.ece.vt.edu/~jbhuang/)
-<br/>
-In IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2020.
+## ✨ Key Highlights
 
+* **⚡ Single-Command Execution via `uv`**: Powered entirely by `uv`, which instantly provisions the exact Python environment and locked dependencies without manual environment setup.
+* **🐍 Modern Ecosystem Compatibility**: Fully refactored and tested for **Python 3.10–3.13**, **PyTorch 2.6+**, and **NumPy 2.x**. Modernized for recent library updates (NumPy 2.x type standards, NetworkX 3.x graph APIs, safe PyYAML loading, and updated VisPy/MoviePy backends).
+* **🤖 Automatic Model Download**: No manual downloads or file placements required. Pretrained weights are automatically fetched and set up on the first run.
+* **💻 Broad Hardware Support**: Validated on Windows 11 on both discrete NVIDIA GPUs (e.g., RTX 3060) and entry-level CPUs (e.g., Intel N150) without local C++ compilation.
 
-## Prerequisites
+---
 
-- Linux (tested on Ubuntu 18.04.4 LTS)
-- Anaconda
-- Python 3.7 (tested on 3.7.4)
-- PyTorch 1.4.0 (tested on 1.4.0 for execution)
+## 🚀 Quick Start
 
-and the Python dependencies listed in [requirements.txt](requirements.txt)
-- To get started, please run the following commands:
-    ```bash
-    conda create -n 3DP python=3.7 anaconda
-    conda activate 3DP
-    pip install -r requirements.txt
-    conda install pytorch==1.4.0 torchvision==0.5.0 cudatoolkit==10.1.243 -c pytorch
-    ```
-- Next, please download the model weight using the following command:
-    ```bash
-    chmod +x download.sh
-    ./download.sh
-    ```    
+### Prerequisites
+* **`git`** and **`uv`** are required. This guide assumes both are already installed on your system.
 
-## Quick start
-Please follow the instructions in this section. 
-This should allow to execute our results.
-For more detailed instructions, please refer to [`DOCUMENTATION.md`](DOCUMENTATION.md).
+*(Note: Google Colab and cloud notebook environments are not supported. This project is dedicated to local execution via `uv`.)*
 
-## Execute
-1. Put ```.jpg``` files (e.g., test.jpg) into the ```image``` folder. 
-    - E.g., `image/moon.jpg`
-2. Run the following command
-    ```bash
-    python main.py --config argument.yml
-    ```
-    - Note: The 3D photo generation process usually takes about 2-3 minutes depending on the available computing resources.
-3. The results are stored in the following directories:
-    - Corresponding depth map estimated by [MiDaS](https://github.com/intel-isl/MiDaS.git) 
-        - E.g. ```depth/moon.npy```, ```depth/moon.png```
-        - User could edit ```depth/moon.png``` manually. 
-            - Remember to set the following two flags as listed below if user wants to use manually edited ```depth/moon.png``` as input for 3D Photo.
-                - `depth_format: '.png'`
-                - `require_midas: False`
-    - Inpainted 3D mesh (Optional: User need to switch on the flag `save_ply`)
-        - E.g. ```mesh/moon.ply```
-    - Rendered videos with zoom-in motion
-        - E.g. ```video/moon_zoom-in.mp4```
-    - Rendered videos with swing motion
-        - E.g. ```video/moon_swing.mp4```
-    - Rendered videos with circle motion
-        - E.g. ```video/moon_circle.mp4```         
-    - Rendered videos with dolly zoom-in effect
-        - E.g. ```video/moon_dolly-zoom-in.mp4```
-        - Note: We assume that the object of focus is located at the center of the image.
-4. (Optional) If you want to change the default configuration. Please read [`DOCUMENTATION.md`](DOCUMENTATION.md) and modified ```argument.yml```.
+### Clone & Run
+Clone the repository and run the pipeline. `uv` will automatically set up Python, install all locked dependencies, download required models, and process images:
 
+```bash
+git clone https://github.com/takeimo/Tierer.git
+cd Tierer
 
-## License
-This work is licensed under MIT License. See [LICENSE](LICENSE) for details. 
-
-If you find our code/models useful, please consider citing our paper:
+# Run the pipeline (uv sets up and executes everything automatically)
+uv run main.py --config argument.yml
 ```
-@inproceedings{Shih3DP20,
-  author = {Shih, Meng-Li and Su, Shih-Yang and Kopf, Johannes and Huang, Jia-Bin},
-  title = {3D Photography using Context-aware Layered Depth Inpainting},
-  booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
-  year = {2020}
+
+### Custom Images & GPU Settings
+* **Input / Output**: Place your input images into the `image/` directory. Output 3D mesh files (`mesh/*.ply`) and rendered parallax videos (`video/*.mp4`) will be generated automatically.
+* **GPU / CPU Acceleration**: Edit `argument.yml` to select your compute device:
+  * `gpu_ids: 0` — for NVIDIA GPU acceleration (CUDA)
+  * `gpu_ids: -1` — for CPU-only execution
+
+---
+
+## 🧭 Project Policy & Scope
+
+* **Single Responsibility**: The purpose of this repository is strictly to provide a stable, out-of-the-box implementation of **Layered Depth Inpainting (LDI)** in modern environments.
+* **No Feature Creep**: We do not plan to add complex camera controls, UI wrappers, or new editing features. The pipeline outputs clean `.ply` 3D meshes so users can freely import and animate them in 3D software (such as Blender).
+* **Continuous Modernization**: We prioritize tracking modern Python and library updates, keeping the pipeline operational on contemporary systems.
+* **Calendar Versioning (`YYYY.MM.DD`)**: Releases and tags use calendar dates so users can easily see when the repository was last updated and verified.
+* **Local-First Focus**: Support is limited to local CLI environments managed via `uv`. Google Colab / Jupyter notebooks are explicitly outside the scope of this project.
+
+---
+
+## ⚠ Disclaimer & Maintenance Notice
+
+* **AI-Assisted Maintenance**: Please note that the maintainer is **not a professional software engineer**. This modernization project is curated and maintained with the assistance of AI/LLM tools.
+* **No Pull Requests & Limited Support**: Because the maintainer lacks the expertise to review and validate external code, **pull requests are not accepted, and bespoke user support cannot be provided.** If you encounter platform-specific issues or wish to adapt the code, please feel free to fork this repository under the MIT License.
+
+---
+
+## 🙏 Heartfelt Acknowledgments & Citations
+
+We express our deepest gratitude and respect to the original authors and researchers whose ingenious work made single-image layered depth inpainting possible:
+
+* **Original Paper & Framework**:
+  > **3D Photography using Context-aware Layered Depth Inpainting**  
+  > Meng-Li Shih, Shih-Yang Su, Johannes Kopf, and Jia-Bin Huang  
+  > *IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 2020*  
+  > [[Paper](https://arxiv.org/abs/2004.04727)] | [[Project Page](https://shihmengli.github.io/3D-Photo-Inpainting/)] | [[Original Repository](https://github.com/vt-vl-lab/3d-photo-inpainting)]
+
+```bibtex
+@inproceedings{shih20203dphoto,
+  title={3D Photography using Context-aware Layered Depth Inpainting},
+  author={Shih, Meng-Li and Su, Shih-Yang and Kopf, Johannes and Huang, Jia-Bin},
+  booktitle={IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year={2020}
 }
 ```
 
-## Acknowledgments
-- We thank Pratul Srinivasan for providing clarification of the method [Srinivasan et al. CVPR 2019](https://people.eecs.berkeley.edu/~pratul/publication/mpi_extrapolation/).
-- We thank the author of [Zhou et al. 2018](https://people.eecs.berkeley.edu/~tinghuiz/projects/mpi/), [Choi et al. 2019](https://github.com/NVlabs/extreme-view-synth/), [Mildenhall et al. 2019](https://github.com/Fyusion/LLFF), [Srinivasan et al. 2019](https://github.com/google-research/google-research/tree/ac9b04e1dbdac468fda53e798a326fe9124e49fe/mpi_extrapolation), [Wiles et al. 2020](http://www.robots.ox.ac.uk/~ow/synsin.html), [Niklaus et al. 2019](https://github.com/sniklaus/3d-ken-burns) for providing their implementations online.
-- Our code builds upon [EdgeConnect](https://github.com/knazeri/edge-connect), [MiDaS](https://github.com/intel-isl/MiDaS.git) and [pytorch-inpainting-with-partial-conv](https://github.com/naoto0804/pytorch-inpainting-with-partial-conv)
+* **Underlying Core Technologies**:
+  * **MiDaS** (Monocular Depth Estimation): René Ranftl, Katrin Lasinger, David Hafner, Konrad Schindler, Vladlen Koltun ([isl-org/MiDaS](https://github.com/isl-org/MiDaS))
+  * **EdgeConnect** (Adversarial Edge Inpainting): Kamyar Nazeri, Eric Ng, Tony Joseph, Faisal Z. Qureshi, Mehran Ebrahimi ([knazeri/edge-connect](https://github.com/knazeri/edge-connect))
+  * **Partial Convolution** (Inpainting for Irregular Holes): Guilin Liu et al., NVIDIA ([ECCV 2018](https://arxiv.org/abs/1804.07723))
+
+---
+
+## 📄 License & Model Usage Disclaimers
+
+* **Source Code**: Released under the [MIT License](LICENSE), consistent with the original repository.
+* **Pretrained Weights**: The model checkpoints automatically downloaded from Hugging Face are derived from the original research and trained on academic datasets (such as MegaDepth). Users are responsible for ensuring compliance with the respective research and dataset licenses when using these models.
