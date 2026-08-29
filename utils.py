@@ -233,10 +233,9 @@ def clean_far_edge_new(input_edge, end_depth_maps, mask, context, global_mesh, i
                 ends = [*sorted_end_pt]
             else:
                 import pdb; pdb.set_trace()
-            try:
-                edge_id = global_mesh.nodes[ends[0]]['edge_id']
-            except:
-                import pdb; pdb.set_trace()
+            edge_id = global_mesh.nodes[ends[0]].get('edge_id')
+            if edge_id is None:
+                continue
             pnodes = sorted(pnodes, 
                             key=lambda x: np.hypot((x[0] - ends[0][0]), (x[1] - ends[0][1])),
                             reverse=True)[0]
@@ -1034,18 +1033,10 @@ def filter_irrelevant_edge(self_edge, other_edges, other_edges_with_id, current_
                                     other_edges_info[-1]['edge_map'][nx, ny] = 1
                             except:
                                 pass
-    try:
-        other_edges_info = sorted(other_edges_info, key=lambda x : x['diff'], reverse=True)
-    except:
-        import pdb
-        pdb.set_trace()
-    # import pdb
-    # pdb.set_trace()
-    # other_edges = other_edges[..., None]
+    other_edges_info = sorted(other_edges_info, key=lambda x: x.get('diff', 0), reverse=True)
     for other_edge in other_edges_info:
-        if other_edge['end_point_map'] is None:
-            import pdb
-            pdb.set_trace()
+        if other_edge.get('end_point_map') is None:
+            continue
 
     other_edges = other_edges * context
 

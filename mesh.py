@@ -854,10 +854,10 @@ def remove_dangling(mesh, edge_ccs, edge_mesh, info_on_pix, image, depth, config
                               if info_on_pix.get((x, y)) is not None and (x, y, info_on_pix[(x, y)][0]['depth']) not in cc])
             ne_sub_mesh = mesh.subgraph(eight_nes).copy()
             ne_ccs = netx.connected_components(ne_sub_mesh)
-            try:
-                ne_cc = [ne_cc for ne_cc in ne_ccs if ne_node in ne_cc][0]
-            except:
-                import pdb; pdb.set_trace()
+            matching_ccs = [c for c in ne_ccs if ne_node in c]
+            if not matching_ccs:
+                continue
+            ne_cc = matching_ccs[0]
             largest_cc = [xx for xx in ne_cc if abs(xx[0] - node[0]) + abs(xx[1] - node[1]) == 1]
             mesh.remove_edges_from([(xx, node) for xx in mesh.neighbors(node)])
             re_depth = {'value' : 0, 'count': 0}
@@ -1487,8 +1487,10 @@ def DL_inpaint_edge(mesh,
                 try:
                     edge_dict['fpath_map'], edge_dict['npath_map'], break_flag, npaths, fpaths, invalid_edge_id = \
                         clean_far_edge_new(edge_dict['output'], end_depth_maps, edge_dict['mask'], edge_dict['context'], mesh, info_on_pix, edge_dict['self_edge'], inpaint_iter, config)
-                except:
-                    import pdb; pdb.set_trace()
+                except Exception as e:
+                    print(f"Warning: clean_far_edge_new failed at iter {inpaint_iter}: {e}")
+                    break_flag = True
+                    continue
                 pre_npath_map = edge_dict['npath_map'].copy()
                 if config.get('repeat_inpaint_edge') is True:
                     for _ in range(2):
@@ -1806,10 +1808,9 @@ def DL_inpaint_edge(mesh,
         if mesh.nodes[node].get('edge_id') is not None and mesh.nodes[node].get('inpaint_id') == inpaint_iter + 1:
             if mesh.nodes[node].get('inpaint_twice') is False:
                 continue
-            try:
-                new_edge_ccs[mesh.nodes[node].get('edge_id')].add(node)
-            except:
-                import pdb; pdb.set_trace()
+            edge_id = mesh.nodes[node].get('edge_id')
+            if edge_id is not None and edge_id in new_edge_ccs:
+                new_edge_ccs[edge_id].add(node)
     specific_mask_nodes = None
     if inpaint_iter == 0:
         mesh, info_on_pix = refine_color_around_edge(mesh, info_on_pix, new_edge_ccs, config, False)
