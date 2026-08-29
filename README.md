@@ -13,11 +13,10 @@ The original project was a groundbreaking milestone in synthesizing 3D parallax 
 ## ✨ Key Highlights
 
 * **⚡ Single-Command Execution via `uv`**: Fully managed by `uv`. Automatically provisions an isolated local virtual environment (`.venv`) and pre-built wheels without polluting your global system or breaking other AI environments.
-* **🧠 Automatic Hardware Detection**: Automatically detects NVIDIA GPUs (CUDA) for high-speed processing (e.g., ~3 minutes on RTX 3060) or seamlessly falls back to CPU mode on machines without dedicated GPUs. No configuration needed.
-* **🖼 Multi-Format Image Support**: Out-of-the-box support for **PNG (including RGBA/transparency)**, **JPEG/JPG**, **WebP**, and **BMP**.
-* **📁 Clean Input/Output Architecture**: Intuitive directory structure (`input_images/` ➔ `outputs/`), keeping the repository root pristine and clutter-free.
 * **🐍 Modern Ecosystem Compatibility**: Refactored for **Python 3.10–3.13**, **PyTorch 2.6+**, and **NumPy 2.x**. Resolved legacy incompatibilities (NumPy 2.x type standards, NetworkX 3.x graph APIs, safe PyYAML loading, and Qt6/MoviePy backends).
 * **🤖 Automatic Model Download**: Pretrained neural network weights are automatically fetched and verified from [Hugging Face](https://huggingface.co/takeimo/tierer-models) on the initial run.
+* **🧠 Automatic Hardware Detection**: Automatically detects NVIDIA GPUs (CUDA) for high-speed processing (e.g., ~3 minutes on RTX 3060) or seamlessly falls back to CPU mode on machines without dedicated GPUs. No configuration needed.
+* **🖼 Multi-Format Image Support**: Out-of-the-box support for **PNG (including RGBA/transparency)**, **JPEG/JPG**, **WebP**, and **BMP**.
 
 ---
 
