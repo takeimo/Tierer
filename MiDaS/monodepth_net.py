@@ -20,7 +20,11 @@ class MonoDepthNet(nn.Module):
         """
         super().__init__()
 
-        resnet = models.resnet50(pretrained=False)
+        # 現代の torchvision 仕様 (weights=None で警告を根絶)
+        try:
+            resnet = models.resnet50(weights=None)
+        except TypeError:
+            resnet = models.resnet50(pretrained=False)
 
         self.pretrained = nn.Module()
         self.scratch = nn.Module()

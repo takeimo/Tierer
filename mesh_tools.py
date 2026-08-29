@@ -1,9 +1,6 @@
 import os
 import numpy as np
-try:
-    import cynetworkx as netx
-except ImportError:
-    import networkx as netx
+import networkx as netx
 
 import json
 import scipy.misc as misc
@@ -171,7 +168,9 @@ def extrapolate(global_mesh,
     log_depth[mask > 0] = 0
     input_mean_depth = np.mean(log_depth[context > 0])
     input_zero_mean_depth = (log_depth - input_mean_depth) * context
-    input_disp = 1./np.abs(input_depth)
+    # 0除算による inf / NaN 発生を数学的に防止（最小値を 1e-6 にクリップ）
+    safe_depth = np.clip(np.abs(input_depth), a_min=1e-6, a_max=None)
+    input_disp = 1.0 / safe_depth
     input_disp[mask > 0] = 0
     input_disp = input_disp / input_disp.max()
     valid_line = np.zeros_like(depth)
