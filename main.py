@@ -19,12 +19,9 @@ from bilateral_filtering import sparse_bilateral_filtering
 from networks import Inpaint_Color_Net, Inpaint_Depth_Net, Inpaint_Edge_Net
 
 # MiDaS による深度推定モジュール
-try:
-    from MiDaS.run import run_depth
-    from MiDaS.monodepth_net import MonoDepthNet
-    import MiDaS.MiDaS_utils as MiDaS_utils
-except ImportError:
-    pass
+from MiDaS.run import run_depth
+from MiDaS.monodepth_net import MonoDepthNet
+import MiDaS.MiDaS_utils as MiDaS_utils
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--config', type=str, default='argument.yml',help='Configure of post processing')
