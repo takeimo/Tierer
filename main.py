@@ -1,3 +1,15 @@
+import sys
+import time
+
+# ========== 1. 起動直後に即座にバナーを表示（重いimportの前） ==========
+print("\n" + "=" * 60)
+print("👑 Tierer [v2026.08.30] - 3D Layered Depth Inpainting")
+print("⚡ Initializing AI engines, please wait a moment...")
+print("=" * 60 + "\n", flush=True)
+
+start_time = time.time()
+
+# 重いライブラリの読み込み
 import copy
 from datetime import datetime
 import numpy as np
@@ -9,13 +21,13 @@ import vispy
 import imageio.v2 as imageio
 from tqdm import tqdm
 import yaml
-import time
 import cv2
 import torch
+
 from mesh import write_ply, read_ply, output_3d_photo
 from utils import get_MiDaS_samples, read_MiDaS_depth
 from bilateral_filtering import sparse_bilateral_filtering
-from boostmonodepth_utils import run_boostmonodepth 
+from boostmonodepth_utils import run_boostmonodepth
 
 # インペイント用ニューラルネットワークのインポート
 from networks import Inpaint_Color_Net, Inpaint_Depth_Net, Inpaint_Edge_Net
@@ -25,11 +37,26 @@ from MiDaS.run import run_depth
 from MiDaS.monodepth_net import MonoDepthNet
 import MiDaS.MiDaS_utils as MiDaS_utils
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--config', type=str, default='argument.yml',help='Configure of post processing')
+# ========== 2. 引数パーサー（--config を省略可能に設定） ==========
+parser = argparse.ArgumentParser(description="Tierer: 3D Layered Depth Inpainting Pipeline")
+parser.add_argument(
+    "--config",
+    type=str,
+    default="argument.yml",
+    help="Path to the YAML configuration file (default: argument.yml)"
+)
 args = parser.parse_args()
+
+if not os.path.exists(args.config):
+    raise FileNotFoundError(f"[Tierer Error] Configuration file '{args.config}' not found.")
+
+if args.config == "argument.yml":
+    print(f"[Config] Using default configuration: {args.config}")
+else:
+    print(f"[Config] Using custom configuration: {args.config}")
+
 config = yaml.safe_load(open(args.config, 'r'))
-start_time = time.time()
+
 if config['offscreen_rendering'] is True:
     vispy.use(app='egl')
 os.makedirs(config['mesh_folder'], exist_ok=True)
