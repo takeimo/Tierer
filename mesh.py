@@ -2130,7 +2130,10 @@ class Canvas_view():
                  bgcolor='gray',
                  proj='perspective',
                  ):
-        self.canvas = scene.SceneCanvas(bgcolor=bgcolor, size=(canvas_size*factor, canvas_size*factor))
+        self.canvas_size = int(canvas_size)
+        self.factor = factor
+        self.target_size = int(canvas_size * factor)
+        self.canvas = scene.SceneCanvas(bgcolor=bgcolor, size=(self.target_size, self.target_size))
         self.view = self.canvas.central_widget.add_view()
         self.view.camera = 'perspective'
         self.view.camera.fov = fov
@@ -2153,7 +2156,12 @@ class Canvas_view():
         self.view.camera.view_changed()
 
     def render(self):
-        return self.canvas.render()
+        img = self.canvas.render()
+        # High-DPI (125%, 150% 等) で物理フレームバッファが拡大描画された場合、
+        # 視野全体を損なわないよう指定のターゲット解像度 (960x960) へ安全にリサイズして返す
+        if img.shape[0] != self.target_size or img.shape[1] != self.target_size:
+            img = cv2.resize(img, (self.target_size, self.target_size), interpolation=cv2.INTER_AREA)
+        return img
 
     def reinit_mesh(self, verts, faces, colors):
         self.mesh.set_data(vertices=verts, faces=faces, vertex_colors=colors[:, :3])
@@ -2161,7 +2169,6 @@ class Canvas_view():
     def reinit_camera(self, fov):
         self.view.camera.fov = fov
         self.view.camera.view_changed()
-
 
 def output_3d_photo(verts, colors, faces, Height, Width, hFov, vFov, tgt_poses, video_traj_types, ref_pose,
                     output_dir, ref_image, int_mtx, config, image, videos_poses, video_basename, original_H=None, original_W=None,
@@ -2179,7 +2186,19 @@ def output_3d_photo(verts, colors, faces, Height, Width, hFov, vFov, tgt_poses, 
     colors = colors[..., :3]
 
     fov_in_rad = max(cam_mesh.graph['vFov'], cam_mesh.graph['hFov'])
-    fov = (fov_in_rad * 180 / np.pi)
+    fov = fov_in_rad * 180. / np.pi
+
+    # ========== 幾何パラメータのダンプ出力 ==========
+    print("\n" + "-" * 50)
+    print(f"[Debug Geometry] Calculated FoV (deg) : {fov:.4f}")
+    print(f"[Debug Geometry] Mean Location Depth  : {mean_loc_depth:.4f}")
+    print(f"[Debug Geometry] Image Dimensions (HxW): {Height} x {Width}")
+    print(f"[Debug Geometry] Border Crop [T,D,L,R] : {border}")
+    print(f"[Debug Geometry] Mesh X Range (Min/Max): {verts[:, 0].min():.4f} to {verts[:, 0].max():.4f} (Center: {verts[:, 0].mean():.4f})")
+    print(f"[Debug Geometry] Mesh Y Range (Min/Max): {verts[:, 1].min():.4f} to {verts[:, 1].max():.4f} (Center: {verts[:, 1].mean():.4f})")
+    print(f"[Debug Geometry] Mesh Z Range (Min/Max): {verts[:, 2].min():.4f} to {verts[:, 2].max():.4f}")
+    print("-" * 50 + "\n", flush=True)
+    # ===============================================
     print("fov: " + str(fov))
     init_factor = 1
     if config.get('anti_flickering') is True:
