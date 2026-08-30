@@ -9,11 +9,16 @@ MiDaS/model.pt
 *.pth
 *.pt
 
-# 出力成果物フォルダ（丸ごと除外）
+# 出力成果物フォルダ
 outputs/
 depth/
 mesh/
 video/
+
+# 入力画像フォルダ（テスト画像を除外し、サンプル画像だけを残す）
+input_images/*
+!input_images/moon.jpg
+!input_images/.gitkeep
 
 # OSやエディタの一時ファイル
 .DS_Store
