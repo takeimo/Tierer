@@ -4,6 +4,8 @@
 [![Package Manager: uv](https://img.shields.io/badge/uv-fast%20package%20manager-2BA8E2)](https://github.com/astral-sh/uv)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+<img width="640" height="640" alt="moon_circle_(scale0 33_fps15)" src="https://github.com/user-attachments/assets/51e5643d-45af-48f3-9c72-f9049ac9cc56" />
+
 **Tierer** is a modernized revival of the seminal layered depth inpainting project, [3D Photography using Context-aware Layered Depth Inpainting (CVPR 2020)](https://github.com/vt-vl-lab/3d-photo-inpainting).
 
 The original project was a groundbreaking milestone in synthesizing 3D parallax and context-aware disocclusion from a single RGB image. **Tierer** refactors this classic technology for contemporary systems using **[uv](https://github.com/astral-sh/uv)** — providing a zero-setup, fully isolated, and deterministic pipeline out of the box with a single command.
