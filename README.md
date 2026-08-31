@@ -35,12 +35,12 @@ git clone https://github.com/takeimo/Tierer.git
 cd Tierer
 
 # Run the pipeline (everything is handled automatically)
-uv run main.py --config argument.yml
+uv run main.py
 ```
 
 ### 2. Processing Your Own Images
 1. Drop your target image(s) (`.png`, `.jpg`, `.webp`, etc.) into the **`input_images/`** folder.
-2. Run `uv run main.py --config argument.yml`.
+2. Run `uv run main.py`.
 3. Generated results are cleanly organized in **`outputs/`**:
    * 🎥 **Parallax Videos**: `outputs/videos/<image_name>_<trajectory>.mp4`
    * 🧊 **3D Inpainted Meshes**: `outputs/3d_meshes/<image_name>.ply`
@@ -101,3 +101,4 @@ Deep gratitude and respect to the original authors and researchers whose ingenio
 
 * **Source Code**: Released under the [MIT License](LICENSE), inherited from the original repository.
 * **Pretrained Weights**: The checkpoints automatically fetched from Hugging Face are derived from the original research and trained on academic datasets (such as MegaDepth). Users are responsible for ensuring compliance with original research licenses when utilizing these models.
+* **Sample Media**: The sample image `input_images/moon.jpg` originates from the public-domain NASA Apollo 11 archive (Buzz Aldrin on the Moon, photographed by Neil Armstrong), inherited from the original project.
